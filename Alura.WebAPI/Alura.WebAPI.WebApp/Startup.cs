@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Alura.WebAPI.WebApp.Formatters;
 using Microsoft.IdentityModel.Tokens;
+using Alura.ListaLeitura.HttpClients;
 
 namespace Alura.ListaLeitura.WebApp
 {
@@ -38,6 +39,10 @@ namespace Alura.ListaLeitura.WebApp
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             }).AddEntityFrameworkStores<AuthDbContext>();
+
+            services.AddHttpClient<LivroApiClient>(client => { 
+                client.BaseAddress = new System.Uri("http://localhost:6000/api/");
+    });
 
             services.ConfigureApplicationCookie(options => {
                 options.LoginPath = "/Usuario/Login";
