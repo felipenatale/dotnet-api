@@ -3,12 +3,15 @@ using Alura.ListaLeitura.Persistencia;
 using Alura.ListaLeitura.Modelos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Alura.ListaLeitura.WebApp.Controllers
 {
     [Authorize]
     public class LivroController : Controller
     {
+        private const string UriString = "http://localhost:6000/api/";
         private readonly IRepository<Livro> _repo;
 
         public LivroController(IRepository<Livro> repository)
@@ -35,12 +38,15 @@ namespace Alura.ListaLeitura.WebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult ImagemCapa(int id)
+        public async Task<IActionResult> ImagemCapa(int id)
         {
-            byte[] img = _repo.All
-                .Where(l => l.Id == id)
-                .Select(l => l.ImagemCapa)
-                .FirstOrDefault();
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new System.Uri(UriString);
+            HttpResponseMessage resposta = await httpClient.GetAsync($"ListasLeitura/{id}/capa");
+            resposta.EnsureSuccessStatusCode();
+
+            byte[] img = await resposta.Content.ReadAsByteArrayAsync();
+
             if (img != null)
             {
                 return File(img, "image/png");
@@ -48,15 +54,32 @@ namespace Alura.ListaLeitura.WebApp.Controllers
             return File("~/images/capas/capa-vazia.png", "image/png");
         }
 
+        //[HttpGet]
+        //public IActionResult Detalhes(int id)
+        //{
+        //    var model = _repo.Find(id);
+        //    if (model == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(model.ToModel());
+        //}
+
         [HttpGet]
-        public IActionResult Detalhes(int id)
+        public async Task<IActionResult> Detalhes(int id)
         {
-            var model = _repo.Find(id);
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new System.Uri(UriString);
+            HttpResponseMessage resposta = await httpClient.GetAsync($"livros/{id}");
+            resposta.EnsureSuccessStatusCode();
+
+            var model = await resposta.Content.ReadAsAsync<LivroApi>();
+
             if (model == null)
             {
                 return NotFound();
             }
-            return View(model.ToModel());
+            return View(model.ToUpload());
         }
 
         [HttpGet]
