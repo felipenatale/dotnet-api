@@ -33,7 +33,8 @@ namespace Alura.ListaLeitura.Modelos
             };
         }
 
-        public static LivroApi ToApi(this Livro livro) {
+        public static LivroApi ToApi(this Livro livro)
+        {
             return new LivroApi
             {
                 Id = livro.Id,
@@ -42,7 +43,7 @@ namespace Alura.ListaLeitura.Modelos
                 Resumo = livro.Resumo,
                 Autor = livro.Autor,
                 ImagemCapa = $"/api/livros/{livro.Id}/capa",
-                Lista = livro.Lista.ToString()
+                Lista = livro.Lista.ParaString()
             };
         }
 
@@ -59,7 +60,7 @@ namespace Alura.ListaLeitura.Modelos
             };
         }
 
-        public static LivroUpload ToUpload(this LivroApi livro) 
+        public static LivroUpload ToUpload(this LivroApi livro)
         {
             return new LivroUpload
             {

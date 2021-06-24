@@ -1,11 +1,9 @@
-﻿using Alura.ListaLeitura.Persistencia;
-using Alura.ListaLeitura.Modelos;
+﻿using Alura.ListaLeitura.Modelos;
 using Alura.ListaLeitura.WebApp.Models;
+using Alura.ListaLeitura.HttpClients;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using Alura.ListaLeitura.HttpClients;
 using System.Threading.Tasks;
 
 namespace Alura.ListaLeitura.WebApp.Controllers
@@ -13,12 +11,10 @@ namespace Alura.ListaLeitura.WebApp.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly IRepository<Livro> _repo;
         private readonly LivroApiClient _api;
 
-        public HomeController(IRepository<Livro> repository, LivroApiClient api)
+        public HomeController(LivroApiClient api)
         {
-            _repo = repository;
             _api = api;
         }
 
@@ -28,7 +24,7 @@ namespace Alura.ListaLeitura.WebApp.Controllers
             return lista.Livros;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> Index()
         {
             var model = new HomeViewModel
             {

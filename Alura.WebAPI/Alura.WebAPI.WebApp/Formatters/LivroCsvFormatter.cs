@@ -11,6 +11,7 @@ namespace Alura.WebAPI.WebApp.Formatters
 {
     public class LivroCsvFormatter : TextOutputFormatter
     {
+
         public LivroCsvFormatter()
         {
             var textCsvMediaType = MediaTypeHeaderValue.Parse("text/csv");
@@ -32,13 +33,14 @@ namespace Alura.WebAPI.WebApp.Formatters
             if (context.Object is LivroApi)
             {
                 var livro = context.Object as LivroApi;
+
                 livroEmCsv = $"{livro.Titulo};{livro.Subtitulo};{livro.Autor};{livro.Lista}";
             }
 
-            using (var escritor = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding)) 
+            using (var escritor = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding))
             {
                 return escritor.WriteAsync(livroEmCsv);
-            }
+            } //escritor.Close()
         }
     }
 }

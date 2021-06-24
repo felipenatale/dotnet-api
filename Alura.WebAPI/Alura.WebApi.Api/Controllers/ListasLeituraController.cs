@@ -1,11 +1,11 @@
-﻿using Alura.ListaLeitura.Modelos;
-using Alura.ListaLeitura.Persistencia;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Alura.ListaLeitura.Modelos;
+using Alura.ListaLeitura.Persistencia;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Lista = Alura.ListaLeitura.Modelos.ListaLeitura;
 
 namespace Alura.ListaLeitura.Api.Controllers
@@ -16,16 +16,21 @@ namespace Alura.ListaLeitura.Api.Controllers
     public class ListasLeituraController : ControllerBase
     {
         private readonly IRepository<Livro> _repo;
+
         public ListasLeituraController(IRepository<Livro> repository)
         {
             _repo = repository;
         }
 
-        private Lista CriaLista(TipoListaLeitura tipo) 
+        private Lista CriaLista(TipoListaLeitura tipo)
         {
-            return new Lista {
+            return new Lista
+            {
                 Tipo = tipo.ParaString(),
-                Livros = _repo.All.Where(l => l.Lista == tipo).Select(l => l.ToApi()).ToList()
+                Livros = _repo.All
+                    .Where(l => l.Lista == tipo)
+                    .Select(l => l.ToApi())
+                    .ToList()
             };
         }
 
@@ -44,20 +49,6 @@ namespace Alura.ListaLeitura.Api.Controllers
         {
             var lista = CriaLista(tipo);
             return Ok(lista);
-        }
-
-        [HttpGet("{id}/capa")]
-        public IActionResult ImagemCapa(int id)
-        {
-            byte[] img = _repo.All
-                .Where(l => l.Id == id)
-                .Select(l => l.ImagemCapa)
-                .FirstOrDefault();
-            if (img != null)
-            {
-                return File(img, "image/png");
-            }
-            return File("~/images/capas/capa-vazia.png", "image/png");
         }
     }
 }
