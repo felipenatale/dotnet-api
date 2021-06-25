@@ -4,20 +4,33 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
+using Alura.ListaLeitura.Seguranca;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace Alura.ListaLeitura.HttpClients
 {
     public class LivroApiClient
     {
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _acessor;
 
-        public LivroApiClient(HttpClient client)
+        public LivroApiClient(HttpClient client, IHttpContextAccessor accessor)
         {
             _httpClient = client;
+            _acessor = accessor;
+        }
+
+        private void AddBearerToken()
+        {
+            var token = _acessor.HttpContext.User.Claims.First(c => c.Type == "Token").Value;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         public async Task<byte[]> GetCapaLivroAsync(int id)
         {
+            AddBearerToken();
+
             var resposta = await _httpClient.GetAsync($"livros/{id}/capa");
             resposta.EnsureSuccessStatusCode();
             return await resposta.Content.ReadAsByteArrayAsync();
@@ -25,6 +38,7 @@ namespace Alura.ListaLeitura.HttpClients
 
         public async Task<LivroApi> GetLivroAsync(int id)
         {
+            AddBearerToken();
             var resposta = await _httpClient.GetAsync($"livros/{id}");
             resposta.EnsureSuccessStatusCode();
             return await resposta.Content.ReadAsAsync<LivroApi>();
@@ -32,6 +46,7 @@ namespace Alura.ListaLeitura.HttpClients
 
         public async Task DeleteLivroAsync(int id)
         {
+            AddBearerToken();
             var resposta = await _httpClient.DeleteAsync($"livros/{id}");
             resposta.EnsureSuccessStatusCode();
             if (resposta.StatusCode != System.Net.HttpStatusCode.NoContent)
@@ -42,6 +57,7 @@ namespace Alura.ListaLeitura.HttpClients
 
         public async Task PostLivroAsync(LivroUpload livro)
         {
+            AddBearerToken();
             HttpContent content = CreateMultipartContent(livro.ToLivro());
             var resposta = await _httpClient.PostAsync("livros", content);
             resposta.EnsureSuccessStatusCode();
@@ -53,6 +69,7 @@ namespace Alura.ListaLeitura.HttpClients
 
         public async Task PutLivroAsync(LivroUpload livro)
         {
+            AddBearerToken();
             HttpContent content = CreateMultipartContent(livro.ToLivro());
             var resposta = await _httpClient.PutAsync("livros", content);
             resposta.EnsureSuccessStatusCode();
@@ -107,6 +124,8 @@ namespace Alura.ListaLeitura.HttpClients
 
         public async Task<Lista> GetListaLeituraAsync(TipoListaLeitura tipo)
         {
+            AddBearerToken();
+
             var resposta = await _httpClient.GetAsync($"listasleitura/{tipo}");
             resposta.EnsureSuccessStatusCode();
             return await resposta.Content.ReadAsAsync<Lista>();
